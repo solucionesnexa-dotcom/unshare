@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GuardianKids Privacy Demo</title>
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>GuardianKids Privacy Platform — Demo Pública</h1>
+      <p>
+        Prototipo interactivo con datos de prueba para monitoreo de exposición infantil en
+        redes públicas.
+      </p>
+    </header>
+
+    <main>
+      <section class="card" id="search-panel">
+        <h2>1) Buscador por nombre del niño</h2>
+        <form id="name-search-form">
+          <label for="child-name">Nombre del niño</label>
+          <input id="child-name" type="text" placeholder="Ej. Mateo" required />
+          <button type="submit">Buscar posts</button>
+        </form>
+        <p class="hint">Se buscan coincidencias en Instagram, TikTok y Facebook (mock data).</p>
+      </section>
+
+      <section class="card" id="face-panel">
+        <h2>2) Detección facial AI (simulada)</h2>
+        <p>
+          Selecciona una foto facial de prueba para ejecutar el reconocimiento (simulación con
+          embeddings sintéticos).
+        </p>
+        <div id="face-gallery"></div>
+        <button id="scan-face-btn" disabled>Escanear redes públicas</button>
+        <p id="face-selected" class="hint">Ninguna foto seleccionada.</p>
+      </section>
+
+      <section class="card" id="filters-panel">
+        <h2>3) Escaneo en redes públicas</h2>
+        <div class="inline-fields">
+          <label>
+            <input type="checkbox" id="filter-instagram" checked /> Instagram
+          </label>
+          <label>
+            <input type="checkbox" id="filter-tiktok" checked /> TikTok
+          </label>
+          <label>
+            <input type="checkbox" id="filter-facebook" checked /> Facebook
+          </label>
+          <label>
+            Riesgo mínimo
+            <input type="range" id="risk-threshold" min="0" max="100" value="30" />
+            <span id="risk-value">30</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card" id="results-panel">
+        <h2>4) Resultados + enlaces para solicitar borrado</h2>
+        <div id="results-summary"></div>
+        <div id="results-list"></div>
+      </section>
+
+      <section class="card" id="map-panel">
+        <h2>5) Mapa de hallazgos</h2>
+        <div id="map"></div>
+      </section>
+
+      <section class="card" id="dashboard-panel">
+        <h2>6) Dashboard para padres (alertas)</h2>
+        <div class="dashboard-grid">
+          <article>
+            <h3>Métricas</h3>
+            <ul id="metrics"></ul>
+          </article>
+          <article>
+            <h3>Alertas recientes</h3>
+            <ul id="alerts"></ul>
+          </article>
+          <article>
+            <h3>Acciones rápidas</h3>
+            <button id="simulate-alert">Simular nueva alerta</button>
+            <button id="bulk-delete">Generar solicitudes de borrado</button>
+            <p class="hint">Solo demo: no se llama ninguna API real.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        ⚠️ Este entorno es una demo con datos sintéticos. No procesa biometría real ni consulta
+        APIs oficiales de plataformas.
+      </p>
+    </footer>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
