@@ -18,6 +18,12 @@ export class FindingsController {
     return this.findingsService.create(user, caseId, dto);
   }
 
+  @Get('cases/:caseId/findings')
+  @PolicyResource('finding')
+  async listFindings(@CurrentUser() user: RequestUser, @Param('caseId') caseId: string) {
+    return this.findingsService.listByCase(user, caseId);
+  }
+
   @Get('findings/:findingId')
   @PolicyResource('finding')
   async getFinding(@CurrentUser() user: RequestUser, @Param('findingId') findingId: string) {

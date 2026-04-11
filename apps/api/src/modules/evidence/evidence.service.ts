@@ -57,6 +57,14 @@ export class EvidenceService {
     await this.prisma.findingEvidence.update({ where: { id: evidenceId }, data: { status: clean ? 'available' : 'quarantined' } });
   }
 
+  async listByFinding(user: RequestUser, findingId: string) {
+    const finding = await this.findingsService.getById(user, findingId);
+    if (!finding) throw new BadRequestException('Finding not found');
+
+    const evidence = await this.prisma.findingEvidence.findMany({ where: { findingId } });
+    return evidence;
+  }
+
   async getDownloadUrl(user: RequestUser, evidenceId: string) {
     const evidence = await this.prisma.findingEvidence.findUnique({ where: { id: evidenceId } });
     if (!evidence) throw new BadRequestException('Evidence not found');

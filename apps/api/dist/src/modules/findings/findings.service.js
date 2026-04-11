@@ -51,6 +51,29 @@ let FindingsService = class FindingsService {
         await this.audit.write({ actorUserId: user.id, action: 'finding.create', objectType: 'finding', objectId: record.id, metadata: { fingerprint }, sensitive: true });
         return record;
     }
+    async listByCase(user, caseId) {
+        const caseRecord = await this.casesService.getById(user, caseId);
+        if (!caseRecord)
+            return [];
+        const findings = await this.prisma.finding.findMany({ where: { caseId } });
+        const enriched = await Promise.all(findings.map(async (finding) => {
+            const minor = await this.prisma.minor.findUnique({ where: { id: finding.minorId } });
+            return {
+                id: finding.id,
+                caseId: finding.caseId,
+                minorId: finding.minorId,
+                url: finding.url,
+                platform: finding.platform,
+                ownershipType: finding.ownershipType,
+                riskScore: finding.riskScore,
+                status: finding.status,
+                createdAt: finding.createdAt,
+                childName: minor && Array.isArray(minor.aliasesJson) && minor.aliasesJson.length > 0 ? minor.aliasesJson[0] : undefined,
+                aliases: minor?.aliasesJson
+            };
+        }));
+        return enriched;
+    }
     async getById(user, findingId) {
         const finding = await this.prisma.finding.findUnique({ where: { id: findingId } });
         if (!finding)

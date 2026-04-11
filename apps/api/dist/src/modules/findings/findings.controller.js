@@ -27,6 +27,9 @@ let FindingsController = class FindingsController {
     async createFinding(user, caseId, dto) {
         return this.findingsService.create(user, caseId, dto);
     }
+    async listFindings(user, caseId) {
+        return this.findingsService.listByCase(user, caseId);
+    }
     async getFinding(user, findingId) {
         const finding = await this.findingsService.getById(user, findingId);
         if (!finding)
@@ -45,6 +48,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, create_finding_dto_1.CreateFindingDto]),
     __metadata("design:returntype", Promise)
 ], FindingsController.prototype, "createFinding", null);
+__decorate([
+    (0, common_1.Get)('cases/:caseId/findings'),
+    (0, policy_resource_decorator_1.PolicyResource)('finding'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('caseId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], FindingsController.prototype, "listFindings", null);
 __decorate([
     (0, common_1.Get)('findings/:findingId'),
     (0, policy_resource_decorator_1.PolicyResource)('finding'),

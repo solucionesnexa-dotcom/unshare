@@ -17,6 +17,19 @@ export declare class FindingsController {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    listFindings(user: RequestUser, caseId: string): Promise<{
+        id: string;
+        caseId: string;
+        minorId: string;
+        url: string;
+        platform: string;
+        ownershipType: import(".prisma/client").$Enums.OwnershipType;
+        riskScore: number;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
+        childName: import("@prisma/client/runtime/library").JsonValue | undefined;
+        aliases: import("@prisma/client/runtime/library").JsonValue | undefined;
+    }[]>;
     getFinding(user: RequestUser, findingId: string): Promise<{
         id: string;
         caseId: string;

@@ -1,7 +1,16 @@
+const API_BASE = 'http://localhost:3000/api/v1';
+const AUTH_CREDENTIALS = { email: 'guardian@example.com', password: 'Password123!' };
+const DEFAULT_CASE_ID = '00000000-0000-4000-8000-000000000001';
+
 const state = {
   selectedFace: null,
-  filteredPosts: [...demoPosts],
-  alerts: [...demoAlerts]
+  findings: [],
+  filteredResults: [],
+  alerts: [...demoAlerts],
+  token: null,
+  caseId: DEFAULT_CASE_ID,
+  loading: false,
+  error: null
 };
 
 const elements = {
@@ -30,13 +39,92 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 const markerLayer = L.layerGroup().addTo(map);
 
-function cosineLikeSimilarity(a, b) {
-  const score = a.reduce((acc, value, idx) => {
-    const distance = Math.abs(value - b[idx]);
-    return acc + (1 - distance);
-  }, 0);
+function stableHash(value) {
+  let hash = 0;
+  for (const char of value) {
+    hash = (hash * 31 + char.charCodeAt(0)) | 0;
+  }
+  return Math.abs(hash);
+}
 
-  return Math.round((score / a.length) * 100);
+function apiRequest(path, { method = 'GET', body } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.token) headers.Authorization = `Bearer ${state.token}`;
+
+  return fetch(`${API_BASE}/${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined
+  }).then(async (response) => {
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`${response.status} ${response.statusText}: ${text}`);
+    }
+    return response.json();
+  });
+}
+
+async function login() {
+  if (state.token) return;
+  const session = await apiRequest('auth/login', { method: 'POST', body: AUTH_CREDENTIALS });
+  state.token = session.accessToken;
+}
+
+function getLocationForFinding(finding) {
+  const bases = {
+    Instagram: [40.4168, -3.7038],
+    TikTok: [41.3851, 2.1734],
+    Facebook: [39.4699, -0.3763]
+  };
+  const [baseLat, baseLng] = bases[finding.platform] || bases.Instagram;
+  const hash = stableHash(finding.id);
+  return {
+    city: finding.platform === 'Instagram' ? 'Madrid' : finding.platform === 'TikTok' ? 'Barcelona' : 'Valencia',
+    lat: baseLat + ((hash % 120) - 60) / 100,
+    lng: baseLng + (((hash >> 7) % 120) - 60) / 100
+  };
+}
+
+function mapFindingToResult(finding) {
+  const location = getLocationForFinding(finding);
+  const childName = finding.childName || (Array.isArray(finding.aliases) ? finding.aliases[0] : 'Niño');
+
+  return {
+    id: finding.id,
+    platform: finding.platform,
+    author: `Guardian de ${childName}`,
+    caption: `Detección de contenido publicado en ${finding.platform}`,
+    childName,
+    location,
+    publicUrl: finding.url,
+    deleteRequestUrl: `mailto:privacy@unshare.example.com?subject=Solicitud de borrado&body=Detecté una publicación de ${encodeURIComponent(childName)}: ${encodeURIComponent(finding.url)}`,
+    riskScore: finding.riskScore,
+    postedAt: finding.createdAt,
+    status: finding.status,
+    findingId: finding.id
+  };
+}
+
+function setLoading(loading) {
+  state.loading = loading;
+  renderSummary();
+}
+
+function setError(message) {
+  state.error = message;
+  renderSummary();
+}
+
+function renderSummary() {
+  if (state.loading) {
+    elements.resultsSummary.innerHTML = '<p>Cargando hallazgos desde el backend...</p>';
+    return;
+  }
+
+  if (state.error) {
+    elements.resultsSummary.innerHTML = `<p class="error">${state.error}</p>`;
+    return;
+  }
 }
 
 function renderFaceGallery() {
@@ -63,84 +151,89 @@ function renderFaceGallery() {
   });
 }
 
-function applyFilters(posts) {
+function applyFilters(items) {
   const minRisk = Number(elements.riskThreshold.value);
   const allowInstagram = elements.filterInstagram.checked;
   const allowTikTok = elements.filterTikTok.checked;
   const allowFacebook = elements.filterFacebook.checked;
 
-  return posts.filter((post) => {
+  return items.filter((item) => {
     const platformAllowed =
-      (allowInstagram && post.platform === 'Instagram') ||
-      (allowTikTok && post.platform === 'TikTok') ||
-      (allowFacebook && post.platform === 'Facebook');
-    return platformAllowed && post.riskScore >= minRisk;
+      (allowInstagram && item.platform === 'Instagram') ||
+      (allowTikTok && item.platform === 'TikTok') ||
+      (allowFacebook && item.platform === 'Facebook');
+    return platformAllowed && item.riskScore >= minRisk;
   });
 }
 
-function renderResults(posts, reason = 'general') {
-  const sorted = [...posts].sort((a, b) => b.riskScore - a.riskScore);
-  state.filteredPosts = sorted;
+function renderResults(items, reason = 'general') {
+  if (state.loading || state.error) {
+    elements.resultsList.innerHTML = '';
+    markerLayer.clearLayers();
+    renderSummary();
+    return;
+  }
 
-  elements.resultsSummary.innerHTML = `
-    <p><strong>${sorted.length}</strong> coincidencias detectadas (${reason}).</p>
-  `;
+  const sorted = [...items].sort((a, b) => b.riskScore - a.riskScore);
+  state.filteredResults = sorted;
+
+  elements.resultsSummary.innerHTML = `<p><strong>${sorted.length}</strong> hallazgos cargados (${reason}).</p>`;
 
   elements.resultsList.innerHTML = '';
-  sorted.forEach((post) => {
-    const item = document.createElement('article');
-    item.className = 'result-item';
-    item.innerHTML = `
+  sorted.forEach((item) => {
+    const entry = document.createElement('article');
+    entry.className = 'result-item';
+    entry.innerHTML = `
       <div>
-        <div class="platform">${post.platform} · ${post.author}</div>
-        <p>${post.caption}</p>
-        <p><strong>Niño:</strong> ${post.childName} · <strong>Ciudad:</strong> ${post.location.city}</p>
-        <p><small>${new Date(post.postedAt).toLocaleString('es-ES', { timeZone: 'UTC' })} UTC</small></p>
-        <a href="${post.publicUrl}" target="_blank" rel="noreferrer">Ver publicación</a>
+        <div class="platform">${item.platform} · ${item.author}</div>
+        <p>${item.caption}</p>
+        <p><strong>Niño:</strong> ${item.childName} · <strong>Ciudad:</strong> ${item.location.city}</p>
+        <p><small>${new Date(item.postedAt).toLocaleString('es-ES', { timeZone: 'UTC' })} UTC</small></p>
+        <a href="${item.publicUrl}" target="_blank" rel="noreferrer">Ver publicación</a>
       </div>
       <div>
-        <span class="badge">Riesgo ${post.riskScore}</span><br /><br />
-        <a class="delete-link" href="${post.deleteRequestUrl}" target="_blank" rel="noreferrer">
+        <span class="badge">Riesgo ${item.riskScore}</span><br /><br />
+        <a class="delete-link" href="${item.deleteRequestUrl}" target="_blank" rel="noreferrer">
           Solicitar borrado
         </a>
       </div>
     `;
 
-    elements.resultsList.appendChild(item);
+    elements.resultsList.appendChild(entry);
   });
 
   renderMap(sorted);
   renderMetrics();
 }
 
-function renderMap(posts) {
+function renderMap(items) {
   markerLayer.clearLayers();
-  if (!posts.length) {
+  if (!items.length) {
     map.setView([39.5, -98.35], 4);
     return;
   }
 
   const bounds = [];
-  posts.forEach((post) => {
-    const marker = L.marker([post.location.lat, post.location.lng]).bindPopup(`
-      <strong>${post.childName}</strong><br />
-      ${post.platform} · Riesgo ${post.riskScore}<br />
-      <a href="${post.deleteRequestUrl}" target="_blank" rel="noreferrer">Solicitar borrado</a>
+  items.forEach((item) => {
+    const marker = L.marker([item.location.lat, item.location.lng]).bindPopup(`
+      <strong>${item.childName}</strong><br />
+      ${item.platform} · Riesgo ${item.riskScore}<br />
+      <a href="${item.deleteRequestUrl}" target="_blank" rel="noreferrer">Solicitar borrado</a>
     `);
     markerLayer.addLayer(marker);
-    bounds.push([post.location.lat, post.location.lng]);
+    bounds.push([item.location.lat, item.location.lng]);
   });
 
   map.fitBounds(bounds, { padding: [30, 30] });
 }
 
 function renderMetrics() {
-  const total = state.filteredPosts.length;
-  const highRisk = state.filteredPosts.filter((p) => p.riskScore >= 75).length;
-  const uniqueChildren = new Set(state.filteredPosts.map((p) => p.childName)).size;
+  const total = state.filteredResults.length;
+  const highRisk = state.filteredResults.filter((item) => item.riskScore >= 75).length;
+  const uniqueChildren = new Set(state.filteredResults.map((item) => item.childName)).size;
 
   elements.metrics.innerHTML = `
-    <li>Posts visibles: <strong>${total}</strong></li>
+    <li>Hallazgos visibles: <strong>${total}</strong></li>
     <li>Alto riesgo (>=75): <strong>${highRisk}</strong></li>
     <li>Niños con exposición: <strong>${uniqueChildren}</strong></li>
   `;
@@ -159,38 +252,44 @@ function renderAlerts() {
 
 function runNameSearch(name) {
   const normalized = name.trim().toLowerCase();
-  const matches = demoPosts.filter((post) => post.childName.toLowerCase().includes(normalized));
+  const matches = state.findings.filter((finding) => finding.childName.toLowerCase().includes(normalized));
   renderResults(applyFilters(matches), `búsqueda por nombre: ${name}`);
+}
+
+function computeFaceMatch(face, item) {
+  const hash = stableHash(`${face.childName}|${item.id}`);
+  return 60 + (hash % 41);
 }
 
 function runFaceScan() {
   if (!state.selectedFace) return;
-  const postsWithScore = demoPosts.map((post) => ({
-    ...post,
-    faceMatch: cosineLikeSimilarity(state.selectedFace.embedding, post.embedding)
+
+  const scored = state.findings.map((item) => ({
+    ...item,
+    faceMatch: computeFaceMatch(state.selectedFace, item)
   }));
 
-  const matched = postsWithScore.filter((post) => post.faceMatch >= 75);
-  const withRiskBoost = matched.map((post) => ({
-    ...post,
-    riskScore: Math.min(100, post.riskScore + Math.round((post.faceMatch - 70) / 2))
+  const matched = scored.filter((item) => item.faceMatch >= 75);
+  const withRiskBoost = matched.map((item) => ({
+    ...item,
+    riskScore: Math.min(100, item.riskScore + Math.round((item.faceMatch - 70) / 2))
   }));
 
   renderResults(applyFilters(withRiskBoost), `match facial para ${state.selectedFace.childName}`);
 }
 
 function generateBulkDelete() {
-  if (!state.filteredPosts.length) {
-    alert('No hay posts filtrados para generar solicitudes.');
+  if (!state.filteredResults.length) {
+    alert('No hay hallazgos filtrados para generar solicitudes.');
     return;
   }
 
-  const links = state.filteredPosts.map((post) => `• ${post.deleteRequestUrl}`).join('\n');
-  alert(`Solicitudes de borrado preparadas (${state.filteredPosts.length}):\n${links}`);
+  const links = state.filteredResults.map((item) => `• ${item.deleteRequestUrl}`).join('\n');
+  alert(`Solicitudes de borrado preparadas (${state.filteredResults.length}):\n${links}`);
 }
 
 function simulateAlert() {
-  const seed = state.filteredPosts[Math.floor(Math.random() * state.filteredPosts.length)] || demoPosts[0];
+  const seed = state.filteredResults[Math.floor(Math.random() * state.filteredResults.length)] || state.findings[0] || { childName: 'Niño', platform: 'Instagram', riskScore: 50 };
   const newAlert = {
     id: `AL-${Math.floor(Math.random() * 1000)}`,
     message: `Nueva detección pública para ${seed.childName} en ${seed.platform}.`,
@@ -213,7 +312,7 @@ function bindEvents() {
   [elements.filterInstagram, elements.filterTikTok, elements.filterFacebook, elements.riskThreshold].forEach((control) => {
     control.addEventListener('change', () => {
       elements.riskValue.textContent = elements.riskThreshold.value;
-      renderResults(applyFilters(state.filteredPosts), 'filtros actualizados');
+      renderResults(applyFilters(state.filteredResults), 'filtros actualizados');
     });
   });
 
@@ -221,11 +320,31 @@ function bindEvents() {
   elements.bulkDelete.addEventListener('click', generateBulkDelete);
 }
 
+async function loadFindings() {
+  try {
+    setError(null);
+    setLoading(true);
+    await login();
+
+    const findings = await apiRequest(`cases/${state.caseId}/findings`);
+    state.findings = findings.map(mapFindingToResult);
+    const filtered = applyFilters(state.findings);
+    renderResults(filtered, 'datos cargados desde el backend');
+  } catch (error) {
+    state.findings = [];
+    state.filteredResults = [];
+    setError(error.message || 'Error de conexión con el backend');
+    renderResults([], '');
+  } finally {
+    setLoading(false);
+  }
+}
+
 function initialize() {
   renderFaceGallery();
-  renderResults(applyFilters(demoPosts), 'dataset inicial');
   renderAlerts();
   bindEvents();
+  loadFindings();
 }
 
 initialize();

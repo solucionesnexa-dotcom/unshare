@@ -19,6 +19,16 @@ export declare class EvidenceController {
         capturedBy: string;
         capturedAt: Date;
     }>;
+    listEvidence(user: RequestUser, findingId: string): Promise<{
+        id: string;
+        status: import(".prisma/client").$Enums.EvidenceStatus;
+        sha256: string;
+        findingId: string;
+        objectKey: string;
+        mimeType: string;
+        capturedBy: string;
+        capturedAt: Date;
+    }[]>;
     downloadUrl(user: RequestUser, evidenceId: string): Promise<{
         downloadUrl: string;
         expiresInSeconds: number;

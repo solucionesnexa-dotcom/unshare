@@ -24,6 +24,12 @@ export class EvidenceController {
     return this.evidenceService.markUploaded(body.evidenceId, body.sha256, body.mimeType);
   }
 
+  @Get('findings/:findingId/evidence')
+  @PolicyResource('evidence')
+  async listEvidence(@CurrentUser() user: RequestUser, @Param('findingId') findingId: string) {
+    return this.evidenceService.listByFinding(user, findingId);
+  }
+
   @Get('evidence/:evidenceId/download-url')
   @PolicyResource('evidence')
   async downloadUrl(@CurrentUser() user: RequestUser, @Param('evidenceId') evidenceId: string) {

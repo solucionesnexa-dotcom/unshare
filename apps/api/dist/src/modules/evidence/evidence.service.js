@@ -62,6 +62,13 @@ let EvidenceService = class EvidenceService {
     async setScanResult(evidenceId, clean) {
         await this.prisma.findingEvidence.update({ where: { id: evidenceId }, data: { status: clean ? 'available' : 'quarantined' } });
     }
+    async listByFinding(user, findingId) {
+        const finding = await this.findingsService.getById(user, findingId);
+        if (!finding)
+            throw new common_1.BadRequestException('Finding not found');
+        const evidence = await this.prisma.findingEvidence.findMany({ where: { findingId } });
+        return evidence;
+    }
     async getDownloadUrl(user, evidenceId) {
         const evidence = await this.prisma.findingEvidence.findUnique({ where: { id: evidenceId } });
         if (!evidence)

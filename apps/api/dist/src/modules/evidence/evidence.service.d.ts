@@ -27,6 +27,16 @@ export declare class EvidenceService {
         capturedAt: Date;
     }>;
     setScanResult(evidenceId: string, clean: boolean): Promise<void>;
+    listByFinding(user: RequestUser, findingId: string): Promise<{
+        id: string;
+        status: import(".prisma/client").$Enums.EvidenceStatus;
+        sha256: string;
+        findingId: string;
+        objectKey: string;
+        mimeType: string;
+        capturedBy: string;
+        capturedAt: Date;
+    }[]>;
     getDownloadUrl(user: RequestUser, evidenceId: string): Promise<{
         downloadUrl: string;
         expiresInSeconds: number;

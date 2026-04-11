@@ -30,6 +30,9 @@ let EvidenceController = class EvidenceController {
     async completeUpload(_findingId, body) {
         return this.evidenceService.markUploaded(body.evidenceId, body.sha256, body.mimeType);
     }
+    async listEvidence(user, findingId) {
+        return this.evidenceService.listByFinding(user, findingId);
+    }
     async downloadUrl(user, evidenceId) {
         return this.evidenceService.getDownloadUrl(user, evidenceId);
     }
@@ -53,6 +56,15 @@ __decorate([
     __metadata("design:paramtypes", [String, mark_uploaded_dto_1.MarkUploadedDto]),
     __metadata("design:returntype", Promise)
 ], EvidenceController.prototype, "completeUpload", null);
+__decorate([
+    (0, common_1.Get)('findings/:findingId/evidence'),
+    (0, policy_resource_decorator_1.PolicyResource)('evidence'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('findingId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], EvidenceController.prototype, "listEvidence", null);
 __decorate([
     (0, common_1.Get)('evidence/:evidenceId/download-url'),
     (0, policy_resource_decorator_1.PolicyResource)('evidence'),
