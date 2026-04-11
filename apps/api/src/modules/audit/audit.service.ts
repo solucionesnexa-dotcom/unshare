@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { v7 as uuidv7 } from 'uuid';
 import { PrismaService } from '../../prisma.service';
+import { Prisma } from '@prisma/client';
 
 interface AuditEventInput {
   actorUserId?: string;
@@ -37,7 +38,7 @@ export class AuditService {
           action: event.action,
           objectType: event.objectType,
           objectId: event.objectId,
-          metadata: event.metadata || {},
+          metadata: (event.metadata ?? {}) as Prisma.InputJsonValue,
           prevHash: prevHash || null,
           currHash
         }
