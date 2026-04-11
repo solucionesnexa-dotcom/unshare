@@ -1,113 +1,178 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GuardianKids Privacy Demo</title>
-    <link rel="preconnect" href="https://unpkg.com" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header>
-      <h1>GuardianKids Privacy Platform — Demo Pública</h1>
-      <p>
-        Prototipo interactivo con datos de prueba para monitoreo de exposición infantil en
-        redes públicas.
-      </p>
-    </header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unshare - Protege la imagen de tus hijos</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #FAFAFA; color: #111; padding: 20px; display: flex; justify-content: center; }
+    .container { max-width: 800px; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); padding: 40px; }
+    
+    .section { padding: 2.5rem 0.5rem; border-bottom: 0.5px solid #eaeaea; }
+    .section:last-child { border-bottom: none; }
+    
+    .brand-header { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #111; margin-bottom: 2rem; display: flex; align-items: center; gap: 8px; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: #f3f4f6; color: #666; border: 0.5px solid #eaeaea; border-radius: 6px; padding: 6px 12px; margin-bottom: 1.25rem; }
+    
+    .hero-eyebrow { font-size: 14px; color: #534AB7; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 0.75rem; text-transform: uppercase;}
+    .hero-headline { font-size: clamp(32px, 5vw, 48px); font-weight: 800; color: #111; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.03em; }
+    .hero-headline em { font-style: normal; color: #534AB7; }
+    
+    .hero-sub { font-size: 18px; color: #555; line-height: 1.6; max-width: 600px; margin-bottom: 2rem; }
+    .hero-sub strong { color: #111; font-weight: 600; }
+    
+    .btn-primary { background: #534AB7; color: #fff; border: none; border-radius: 8px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary:hover { background: #42399e; }
+    .btn-ghost { background: transparent; color: #555; border: 1px solid #ccc; border-radius: 8px; padding: 14px 28px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-ghost:hover { background: #f9f9f9; color: #111; }
+    
+    .trust-note { font-size: 13px; color: #888; margin-top: 1rem; font-weight: 500;}
+    
+    .h2 { font-size: clamp(24px, 3.5vw, 32px); font-weight: 700; color: #111; line-height: 1.25; margin-bottom: 1rem; letter-spacing: -0.02em; }
+    .h2 em { font-style: normal; color: #534AB7; }
+    .body { font-size: 17px; color: #555; line-height: 1.7; max-width: 620px; }
+    .body strong { color: #111; font-weight: 600; }
+    
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 2rem 0; }
+    .stat-card { background: #f8f9fa; border-radius: 12px; padding: 1.5rem; border: 1px solid #f0f0f0; }
+    .stat-num { font-size: 32px; font-weight: 800; color: #534AB7; line-height: 1; margin-bottom: 8px; letter-spacing: -0.03em;}
+    .stat-label { font-size: 14px; color: #555; line-height: 1.5; font-weight: 500;}
+    
+    .danger-block { border-left: 3px solid #D85A30; padding: 1rem 0 1rem 1.5rem; margin: 2rem 0; background: #fff5f2; border-radius: 0 12px 12px 0; }
+    .danger-text { font-size: 17px; color: #111; line-height: 1.6; font-weight: 500;}
+    .danger-text em { font-style: italic; color: #555; font-weight: 400;}
+    
+    .quote-block { padding: 2rem 0; text-align: center;}
+    .quote-text { font-size: 22px; font-style: italic; color: #111; line-height: 1.5; margin-bottom: 1rem; font-weight: 500; }
+    .quote-author { font-size: 15px; color: #666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;}
+    
+    .steps { display: flex; flex-direction: column; margin-top: 2rem; border: 1px solid #eaeaea; border-radius: 12px; overflow: hidden; }
+    .step { display: flex; gap: 20px; align-items: flex-start; padding: 1.5rem; background: #fff; border-bottom: 1px solid #eaeaea; }
+    .step:last-child { border-bottom: none; }
+    .step-num { font-size: 14px; font-weight: 700; color: #534AB7; min-width: 24px; padding-top: 2px; }
+    .step-content p:first-child { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 4px; }
+    .step-content p:last-child { font-size: 15px; color: #555; line-height: 1.6; }
+    
+    .final { background: #f8f9fa; border-radius: 16px; padding: 3rem 2rem; text-align: center; margin-top: 2rem; border: 1px solid #f0f0f0;}
+    .final .h2 { margin-bottom: 1rem; }
+    .final .body { margin: 0 auto 2rem; text-align: center; }
+  </style>
+</head>
+<body>
 
-    <main>
-      <section class="card" id="search-panel">
-        <h2>1) Buscador por nombre del niño</h2>
-        <form id="name-search-form">
-          <label for="child-name">Nombre del niño</label>
-          <input id="child-name" type="text" placeholder="Ej. Mateo" required />
-          <button type="submit">Buscar posts</button>
-        </form>
-        <p class="hint">Se buscan coincidencias en Instagram, TikTok y Facebook usando datos cargados desde el backend.</p>
-      </section>
+<div class="container">
 
-      <section class="card" id="face-panel">
-        <h2>2) Detección facial AI (simulada)</h2>
-        <p>
-          Selecciona una foto facial de prueba para ejecutar el reconocimiento (simulación con
-          embeddings sintéticos).
-        </p>
-        <div id="face-gallery"></div>
-        <button id="scan-face-btn" disabled>Escanear redes públicas</button>
-        <p id="face-selected" class="hint">Ninguna foto seleccionada.</p>
-      </section>
+  <div class="section">
+    <!-- LOGO AÑADIDO AQUÍ -->
+    <div class="brand-header">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      Unshare
+    </div>
+    
+    <p class="hero-eyebrow">Para padres y familiares</p>
+    
+    <!-- NUEVO HERO TITULAR Y SUB -->
+    <h1 class="hero-headline">Tu hijo no tiene redes,<br>pero su cara <em>ya está en internet.</em></h1>
+    <p class="hero-sub">
+      El colegio, el club deportivo, los cumpleaños... Otros publican sus fotos en perfiles abiertos todos los días. Con <strong>Unshare</strong>, sube una foto suya de forma segura para encontrar dónde aparece y recuperar el control de su imagen.
+    </p>
+    
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <!-- CTA ACTUALIZADA PARA FOTO -->
+      <button class="btn-primary">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        Subir foto de mi hijo
+      </button>
+      <button class="btn-ghost">Ver cómo funciona</button>
+    </div>
+    <p class="trust-note">Búsqueda gratuita · 100% Privado · Tú decides qué se elimina</p>
+  </div>
 
-      <section class="card" id="filters-panel">
-        <h2>3) Escaneo en redes públicas</h2>
-        <div class="inline-fields">
-          <label>
-            <input type="checkbox" id="filter-instagram" checked /> Instagram
-          </label>
-          <label>
-            <input type="checkbox" id="filter-tiktok" checked /> TikTok
-          </label>
-          <label>
-            <input type="checkbox" id="filter-facebook" checked /> Facebook
-          </label>
-          <label>
-            Riesgo mínimo
-            <input type="range" id="risk-threshold" min="0" max="100" value="30" />
-            <span id="risk-value">30</span>
-          </label>
+  <div class="section">
+    <div class="tag">El problema real</div>
+    <h2 class="h2">No es una foto.<br>Es <em>un expediente</em> que nadie pidió abrir.</h2>
+    
+    <!-- NUEVO ENFOQUE: LA CULPA ES DE TERCEROS -->
+    <p class="body">Aunque tú tengas cuidado, una sola foto subida por la academia o un familiar puede copiarse, guardarse y compartirse en grupos que no ves. <strong>A los 13 años, un niño tiene de media más de 1.300 fotos suyas circulando en internet.</strong> Él no subió ninguna.</p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <p class="stat-num">1.300</p>
+        <p class="stat-label">fotos publicadas de media antes de que un niño cumpla 13 años</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-num">72%</p>
+        <p class="stat-label">de los menores dice que comparten fotos suyas sin pedirles permiso</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-num">1 de 3</p>
+        <p class="stat-label">imágenes acaba circulando por foros o canales no deseados</p>
+      </div>
+    </div>
+
+    <div class="danger-block">
+      <p class="danger-text">Los perfiles falsos, el grooming y el robo de identidad empiezan casi siempre en el mismo sitio: <strong>en una foto publicada con buena intención.</strong> <em>Por alguien que los quería.</em></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="quote-block">
+      <p class="quote-text">"Mi hija me preguntó por qué había fotos suyas en cuentas que ella nunca conoció. Tenía once años y yo llevaba once años creyendo que lo hacía bien."</p>
+      <!-- MARCA MENCIONADA AQUÍ -->
+      <p class="quote-author">— Laura, madre de dos hijos. Usuaria de Unshare.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="tag">Solución</div>
+    <h2 class="h2">Lo que no puedes hacer solo,<br><em>nosotros lo hacemos contigo.</em></h2>
+    
+    <!-- FUERA "RECONOCIMIENTO FACIAL", DENTRO "BÚSQUEDA VISUAL" -->
+    <p class="body">Rastrear internet manualmente es imposible. Unshare utiliza <strong>búsqueda visual segura</strong> para escanear la red abierta y localizar su rostro donde tú no puedes mirar. Tú solo revisas los resultados y confirmas qué quieres eliminar.</p>
+    
+    <div class="steps">
+      <div class="step">
+        <p class="step-num">01</p>
+        <div class="step-content">
+          <!-- FUERA BÚSQUEDA POR NOMBRE -->
+          <p>Una foto como referencia segura</p>
+          <p>Sube una imagen de tu hijo desde el móvil. La usamos de forma privada y encriptada solo para buscar coincidencias.</p>
         </div>
-      </section>
-
-      <section class="card" id="results-panel">
-        <h2>4) Resultados + enlaces para solicitar borrado</h2>
-        <div id="results-summary"></div>
-        <div id="results-list"></div>
-      </section>
-
-      <section class="card" id="map-panel">
-        <h2>5) Mapa de hallazgos</h2>
-        <div id="map"></div>
-      </section>
-
-      <section class="card" id="dashboard-panel">
-        <h2>6) Dashboard para padres (alertas)</h2>
-        <div class="dashboard-grid">
-          <article>
-            <h3>Métricas</h3>
-            <ul id="metrics"></ul>
-          </article>
-          <article>
-            <h3>Alertas recientes</h3>
-            <ul id="alerts"></ul>
-          </article>
-          <article>
-            <h3>Acciones rápidas</h3>
-            <button id="simulate-alert">Simular nueva alerta</button>
-            <button id="bulk-delete">Generar solicitudes de borrado</button>
-            <p class="hint">Demo híbrida: las detecciones se cargan desde el backend NestJS real.</p>
-          </article>
+      </div>
+      <div class="step">
+        <p class="step-num">02</p>
+        <div class="step-content">
+          <p>Escaneamos la red abierta</p>
+          <p>Rastreamos foros, webs, perfiles públicos de colegios o clubes buscando su rostro entre miles de publicaciones.</p>
         </div>
-      </section>
-    </main>
+      </div>
+      <div class="step">
+        <p class="step-num">03</p>
+        <div class="step-content">
+          <p>Tú revisas los hallazgos</p>
+          <p>Te mostramos los posibles resultados prefiltrados. Solo tú puedes verlos y decidir cuáles te preocupan.</p>
+        </div>
+      </div>
+      <div class="step">
+        <p class="step-num">04</p>
+        <div class="step-content">
+          <p>Gestionamos la retirada</p>
+          <p>Generamos las solicitudes formales y te guiamos para pedir que borren esas imágenes. Sin complicaciones legales para ti.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <footer>
-      <p>
-        ⚠️ Este entorno es una demo híbrida. Las detecciones se cargan desde el backend NestJS, pero no procesa biometría real ni consulta APIs oficiales de plataformas.
-      </p>
-    </footer>
+  <div class="section" style="border: none;">
+    <div class="final">
+      <h2 class="h2">Tu hijo no puede protegerse solo.<br><em>Todavía.</em></h2>
+      <p class="body">Un día podrá decidir qué historia cuenta de sí mismo. Mientras llega ese día, esa decisión es tuya. Empieza a recuperarla.</p>
+      <button class="btn-primary" style="margin-top: 1rem;">Quiero saber qué hay ahí fuera</button>
+      <p class="trust-note">Gratis para empezar · Privacidad garantizada · RGPD Europeo</p>
+    </div>
+  </div>
 
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script src="data.js"></script>
-    <script src="app.js"></script>
-  </body>
+</div>
+</body>
 </html>
