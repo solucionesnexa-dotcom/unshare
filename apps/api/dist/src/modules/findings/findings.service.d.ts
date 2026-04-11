@@ -1,17 +1,26 @@
+import { Queue } from 'bullmq';
 import { AuthorizationService } from '../../common/policies/authorization.service';
 import { RequestUser } from '../../common/types/request-user';
 import { PrismaService } from '../../prisma.service';
+import { Prisma } from '@prisma/client';
 import { CasesService } from '../cases/cases.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateFindingDto } from './dto/create-finding.dto';
+import { ScanFindingsDto } from './dto/scan-findings.dto';
+import { FaceMatchingService } from './face-matching.service';
 export declare class FindingsService {
     private readonly prisma;
     private readonly casesService;
     private readonly authz;
     private readonly audit;
-    constructor(prisma: PrismaService, casesService: CasesService, authz: AuthorizationService, audit: AuditService);
+    private readonly faceMatchingService;
+    private readonly faceMatchQueue;
+    constructor(prisma: PrismaService, casesService: CasesService, authz: AuthorizationService, audit: AuditService, faceMatchingService: FaceMatchingService, faceMatchQueue: Queue);
     create(user: RequestUser, caseId: string, dto: CreateFindingDto): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
+        updatedAt: Date;
         caseId: string;
         minorId: string;
         url: string;
@@ -19,9 +28,31 @@ export declare class FindingsService {
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
+        matchingMetadata: Prisma.JsonValue | null;
+    }>;
+    scan(user: RequestUser, caseId: string, dto: ScanFindingsDto): Promise<{
+        id: string;
         status: import(".prisma/client").$Enums.FindingStatus;
         createdAt: Date;
         updatedAt: Date;
+        caseId: string;
+        minorId: string;
+        url: string;
+        urlFingerprint: string;
+        platform: string;
+        ownershipType: import(".prisma/client").$Enums.OwnershipType;
+        riskScore: number;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
+        matchingMetadata: Prisma.JsonValue | null;
     }>;
     listByCase(user: RequestUser, caseId: string): Promise<{
         id: string;
@@ -31,13 +62,22 @@ export declare class FindingsService {
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
         status: import(".prisma/client").$Enums.FindingStatus;
         createdAt: Date;
-        childName: import("@prisma/client/runtime/library").JsonValue | undefined;
-        aliases: import("@prisma/client/runtime/library").JsonValue | undefined;
+        childName: Prisma.JsonValue | undefined;
+        aliases: Prisma.JsonValue | undefined;
+        matchingMetadata: Prisma.JsonValue;
     }[]>;
     getById(user: RequestUser, findingId: string): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
+        updatedAt: Date;
         caseId: string;
         minorId: string;
         url: string;
@@ -45,9 +85,12 @@ export declare class FindingsService {
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
-        status: import(".prisma/client").$Enums.FindingStatus;
-        createdAt: Date;
-        updatedAt: Date;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
+        matchingMetadata: Prisma.JsonValue | null;
     } | {
         id: string;
         url: string;

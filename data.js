@@ -1,6 +1,7 @@
 const demoFaces = [
   {
     id: 'face-mateo',
+    minorId: '00000000-0000-4000-8000-000000000004',
     childName: 'Mateo',
     avatarUrl:
       'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?auto=format&fit=crop&w=320&q=80',
@@ -8,6 +9,7 @@ const demoFaces = [
   },
   {
     id: 'face-valentina',
+    minorId: '00000000-0000-4000-8000-000000000005',
     childName: 'Valentina',
     avatarUrl:
       'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=320&q=80',
@@ -15,6 +17,7 @@ const demoFaces = [
   },
   {
     id: 'face-diego',
+    minorId: '00000000-0000-4000-8000-000000000006',
     childName: 'Diego',
     avatarUrl:
       'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=320&q=80',

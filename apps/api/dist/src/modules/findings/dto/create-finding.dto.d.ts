@@ -5,5 +5,11 @@ export declare class CreateFindingDto {
     platform: string;
     ownershipType: OwnershipType;
     riskScore: number;
+    matchScore?: number;
+    confidenceScore?: number;
+    sourceType?: string;
+    sourceUrl?: string;
+    matchingMetadata?: Record<string, unknown>;
+    duplicateGroupId?: string;
 }
 export {};

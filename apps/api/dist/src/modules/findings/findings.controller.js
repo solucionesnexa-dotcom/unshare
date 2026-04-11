@@ -20,12 +20,16 @@ const policy_guard_1 = require("../../common/guards/policy.guard");
 const policy_resource_decorator_1 = require("../../common/decorators/policy-resource.decorator");
 const create_finding_dto_1 = require("./dto/create-finding.dto");
 const findings_service_1 = require("./findings.service");
+const scan_findings_dto_1 = require("./dto/scan-findings.dto");
 let FindingsController = class FindingsController {
     constructor(findingsService) {
         this.findingsService = findingsService;
     }
     async createFinding(user, caseId, dto) {
         return this.findingsService.create(user, caseId, dto);
+    }
+    async scanFindings(user, caseId, dto) {
+        return this.findingsService.scan(user, caseId, dto);
     }
     async listFindings(user, caseId) {
         return this.findingsService.listByCase(user, caseId);
@@ -48,6 +52,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, create_finding_dto_1.CreateFindingDto]),
     __metadata("design:returntype", Promise)
 ], FindingsController.prototype, "createFinding", null);
+__decorate([
+    (0, common_1.Post)('cases/:caseId/findings/scan'),
+    (0, policy_resource_decorator_1.PolicyResource)('finding'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('caseId')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, scan_findings_dto_1.ScanFindingsDto]),
+    __metadata("design:returntype", Promise)
+], FindingsController.prototype, "scanFindings", null);
 __decorate([
     (0, common_1.Get)('cases/:caseId/findings'),
     (0, policy_resource_decorator_1.PolicyResource)('finding'),

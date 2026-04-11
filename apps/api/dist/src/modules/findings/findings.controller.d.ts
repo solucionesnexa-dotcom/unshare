@@ -1,11 +1,15 @@
 import { RequestUser } from '../../common/types/request-user';
 import { CreateFindingDto } from './dto/create-finding.dto';
 import { FindingsService } from './findings.service';
+import { ScanFindingsDto } from './dto/scan-findings.dto';
 export declare class FindingsController {
     private readonly findingsService;
     constructor(findingsService: FindingsService);
     createFinding(user: RequestUser, caseId: string, dto: CreateFindingDto): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
+        updatedAt: Date;
         caseId: string;
         minorId: string;
         url: string;
@@ -13,9 +17,31 @@ export declare class FindingsController {
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
+        matchingMetadata: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    scanFindings(user: RequestUser, caseId: string, dto: ScanFindingsDto): Promise<{
+        id: string;
         status: import(".prisma/client").$Enums.FindingStatus;
         createdAt: Date;
         updatedAt: Date;
+        caseId: string;
+        minorId: string;
+        url: string;
+        urlFingerprint: string;
+        platform: string;
+        ownershipType: import(".prisma/client").$Enums.OwnershipType;
+        riskScore: number;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
+        matchingMetadata: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     listFindings(user: RequestUser, caseId: string): Promise<{
         id: string;
@@ -25,13 +51,22 @@ export declare class FindingsController {
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
         status: import(".prisma/client").$Enums.FindingStatus;
         createdAt: Date;
         childName: import("@prisma/client/runtime/library").JsonValue | undefined;
         aliases: import("@prisma/client/runtime/library").JsonValue | undefined;
+        matchingMetadata: import("@prisma/client/runtime/library").JsonValue;
     }[]>;
     getFinding(user: RequestUser, findingId: string): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
+        updatedAt: Date;
         caseId: string;
         minorId: string;
         url: string;
@@ -39,9 +74,12 @@ export declare class FindingsController {
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
-        status: import(".prisma/client").$Enums.FindingStatus;
-        createdAt: Date;
-        updatedAt: Date;
+        matchScore: number | null;
+        confidenceScore: number | null;
+        duplicateGroupId: string | null;
+        sourceType: string | null;
+        sourceUrl: string | null;
+        matchingMetadata: import("@prisma/client/runtime/library").JsonValue | null;
     } | {
         id: string;
         url: string;

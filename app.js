@@ -99,10 +99,58 @@ function mapFindingToResult(finding) {
     publicUrl: finding.url,
     deleteRequestUrl: `mailto:privacy@unshare.example.com?subject=Solicitud de borrado&body=Detecté una publicación de ${encodeURIComponent(childName)}: ${encodeURIComponent(finding.url)}`,
     riskScore: finding.riskScore,
-    postedAt: finding.createdAt,
+    matchScore: finding.matchScore,
+    confidenceScore: finding.confidenceScore,
+    sourceType: finding.sourceType,
+    sourceUrl: finding.sourceUrl,
     status: finding.status,
+    matchingMetadata: finding.matchingMetadata,
+    postedAt: finding.createdAt,
     findingId: finding.id
   };
+}
+
+async function createFaceReference(face) {
+  return apiRequest(`cases/${state.caseId}/face-references`, {
+    method: 'POST',
+    body: {
+      minorId: face.minorId,
+      referenceType: 'image',
+      normalizedVector: face.embedding,
+      metadata: { childName: face.childName }
+    }
+  });
+}
+
+async function scanCaseWithReference(faceReferenceId) {
+  return apiRequest(`cases/${state.caseId}/findings/scan`, {
+    method: 'POST',
+    body: { faceReferenceId, platform: 'Instagram' }
+  });
+}
+
+async function scanCaseByName(name) {
+  return apiRequest(`cases/${state.caseId}/findings/scan`, {
+    method: 'POST',
+    body: { nameQuery: name, platform: 'Instagram' }
+  });
+}
+
+async function viewEvidence(findingId) {
+  try {
+    const evidence = await apiRequest(`findings/${findingId}/evidence`);
+    if (!evidence.length) {
+      alert('No se encontró evidencia asociada a este hallazgo.');
+      return;
+    }
+
+    const list = evidence
+      .map((item) => `• ${item.id} (${item.status}) - ${item.mimeType}`)
+      .join('\n');
+    alert(`Evidencia encontrada:\n${list}`);
+  } catch (error) {
+    alert(`Error al cargar evidencia: ${error.message}`);
+  }
 }
 
 function setLoading(loading) {
@@ -188,11 +236,13 @@ function renderResults(items, reason = 'general') {
         <div class="platform">${item.platform} · ${item.author}</div>
         <p>${item.caption}</p>
         <p><strong>Niño:</strong> ${item.childName} · <strong>Ciudad:</strong> ${item.location.city}</p>
+        <p><strong>Match:</strong> ${item.matchScore ?? 'N/A'} · <strong>Confianza:</strong> ${item.confidenceScore ?? 'N/A'}</p>
         <p><small>${new Date(item.postedAt).toLocaleString('es-ES', { timeZone: 'UTC' })} UTC</small></p>
         <a href="${item.publicUrl}" target="_blank" rel="noreferrer">Ver publicación</a>
       </div>
       <div>
         <span class="badge">Riesgo ${item.riskScore}</span><br /><br />
+        <button class="evidence-link" data-finding-id="${item.findingId}" type="button">Ver evidencia</button><br /><br />
         <a class="delete-link" href="${item.deleteRequestUrl}" target="_blank" rel="noreferrer">
           Solicitar borrado
         </a>
@@ -200,6 +250,14 @@ function renderResults(items, reason = 'general') {
     `;
 
     elements.resultsList.appendChild(entry);
+  });
+
+  elements.resultsList.querySelectorAll('.evidence-link').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const findingId = button.getAttribute('data-finding-id');
+      if (!findingId) return;
+      await viewEvidence(findingId);
+    });
   });
 
   renderMap(sorted);
@@ -250,10 +308,27 @@ function renderAlerts() {
     });
 }
 
-function runNameSearch(name) {
-  const normalized = name.trim().toLowerCase();
-  const matches = state.findings.filter((finding) => finding.childName.toLowerCase().includes(normalized));
-  renderResults(applyFilters(matches), `búsqueda por nombre: ${name}`);
+async function runNameSearch(name) {
+  if (!name.trim()) {
+    renderResults(applyFilters(state.findings), 'filtros restaurados');
+    return;
+  }
+
+  setError(null);
+  setLoading(true);
+  try {
+    await login();
+    const finding = await scanCaseByName(name);
+    const mapped = mapFindingToResult(finding);
+    state.findings.unshift(mapped);
+    const filtered = applyFilters(state.findings);
+    renderResults(filtered, `búsqueda y escaneo por nombre: ${name}`);
+  } catch (error) {
+    setError(error.message || 'Error al buscar por nombre');
+    renderResults([], '');
+  } finally {
+    setLoading(false);
+  }
 }
 
 function computeFaceMatch(face, item) {
@@ -261,21 +336,24 @@ function computeFaceMatch(face, item) {
   return 60 + (hash % 41);
 }
 
-function runFaceScan() {
+async function runFaceScan() {
   if (!state.selectedFace) return;
 
-  const scored = state.findings.map((item) => ({
-    ...item,
-    faceMatch: computeFaceMatch(state.selectedFace, item)
-  }));
-
-  const matched = scored.filter((item) => item.faceMatch >= 75);
-  const withRiskBoost = matched.map((item) => ({
-    ...item,
-    riskScore: Math.min(100, item.riskScore + Math.round((item.faceMatch - 70) / 2))
-  }));
-
-  renderResults(applyFilters(withRiskBoost), `match facial para ${state.selectedFace.childName}`);
+  setError(null);
+  setLoading(true);
+  try {
+    await login();
+    const faceReference = await createFaceReference(state.selectedFace);
+    const finding = await scanCaseWithReference(faceReference.id);
+    const mapped = mapFindingToResult(finding);
+    state.findings.unshift(mapped);
+    const filtered = applyFilters(state.findings);
+    renderResults(filtered, `escaneo backend para ${state.selectedFace.childName}`);
+  } catch (error) {
+    setError(error.message || 'Error al escanear el caso');
+  } finally {
+    setLoading(false);
+  }
 }
 
 function generateBulkDelete() {

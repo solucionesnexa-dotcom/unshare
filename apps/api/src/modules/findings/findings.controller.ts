@@ -6,6 +6,7 @@ import { PolicyResource } from '../../common/decorators/policy-resource.decorato
 import { RequestUser } from '../../common/types/request-user';
 import { CreateFindingDto } from './dto/create-finding.dto';
 import { FindingsService } from './findings.service';
+import { ScanFindingsDto } from './dto/scan-findings.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard, PolicyGuard)
@@ -16,6 +17,12 @@ export class FindingsController {
   @PolicyResource('finding')
   async createFinding(@CurrentUser() user: RequestUser, @Param('caseId') caseId: string, @Body() dto: CreateFindingDto) {
     return this.findingsService.create(user, caseId, dto);
+  }
+
+  @Post('cases/:caseId/findings/scan')
+  @PolicyResource('finding')
+  async scanFindings(@CurrentUser() user: RequestUser, @Param('caseId') caseId: string, @Body() dto: ScanFindingsDto) {
+    return this.findingsService.scan(user, caseId, dto);
   }
 
   @Get('cases/:caseId/findings')

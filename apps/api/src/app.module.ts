@@ -9,6 +9,7 @@ import { CasesModule } from './modules/cases/cases.module';
 import { FindingsModule } from './modules/findings/findings.module';
 import { ActionsModule } from './modules/actions/actions.module';
 import { EvidenceModule } from './modules/evidence/evidence.module';
+import { FaceReferencesModule } from './modules/face-references/face-references.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { JobsModule } from './jobs/jobs.module';
 import { HealthController } from './health.controller';
@@ -35,6 +36,7 @@ import { SecretProviderService } from './common/secrets/secret-provider.service'
     FindingsModule,
     ActionsModule,
     EvidenceModule,
+    FaceReferencesModule,
     AuditModule,
     JobsModule
   ]

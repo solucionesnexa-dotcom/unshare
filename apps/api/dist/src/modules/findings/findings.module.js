@@ -8,16 +8,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FindingsModule = void 0;
 const common_1 = require("@nestjs/common");
+const bullmq_1 = require("@nestjs/bullmq");
 const iam_module_1 = require("../iam/iam.module");
 const cases_module_1 = require("../cases/cases.module");
 const audit_module_1 = require("../audit/audit.module");
 const auth_module_1 = require("../auth/auth.module");
 const findings_controller_1 = require("./findings.controller");
 const findings_service_1 = require("./findings.service");
+const face_matching_service_1 = require("./face-matching.service");
 let FindingsModule = class FindingsModule {
 };
 exports.FindingsModule = FindingsModule;
 exports.FindingsModule = FindingsModule = __decorate([
-    (0, common_1.Module)({ imports: [iam_module_1.IamModule, cases_module_1.CasesModule, audit_module_1.AuditModule, auth_module_1.AuthModule], controllers: [findings_controller_1.FindingsController], providers: [findings_service_1.FindingsService], exports: [findings_service_1.FindingsService] })
+    (0, common_1.Module)({
+        imports: [iam_module_1.IamModule, cases_module_1.CasesModule, audit_module_1.AuditModule, auth_module_1.AuthModule, bullmq_1.BullModule.registerQueue({ name: 'face.match' })],
+        controllers: [findings_controller_1.FindingsController],
+        providers: [findings_service_1.FindingsService, face_matching_service_1.FaceMatchingService],
+        exports: [findings_service_1.FindingsService]
+    })
 ], FindingsModule);
 //# sourceMappingURL=findings.module.js.map

@@ -14,16 +14,20 @@ const notifications_processor_1 = require("./processors/notifications.processor"
 const sla_reminder_processor_1 = require("./processors/sla-reminder.processor");
 const action_followup_processor_1 = require("./processors/action-followup.processor");
 const retention_purge_processor_1 = require("./processors/retention-purge.processor");
+const face_matching_processor_1 = require("./processors/face-matching.processor");
 const evidence_module_1 = require("../modules/evidence/evidence.module");
+const audit_module_1 = require("../modules/audit/audit.module");
 let JobsModule = class JobsModule {
 };
 exports.JobsModule = JobsModule;
 exports.JobsModule = JobsModule = __decorate([
     (0, common_1.Module)({
-        imports: [evidence_module_1.EvidenceModule,
-            bullmq_1.BullModule.registerQueue({ name: 'evidence.scan' }, { name: 'notifications.send' }, { name: 'case.sla.reminder' }, { name: 'action.followup' }, { name: 'retention.purge' })
+        imports: [
+            evidence_module_1.EvidenceModule,
+            audit_module_1.AuditModule,
+            bullmq_1.BullModule.registerQueue({ name: 'evidence.scan' }, { name: 'notifications.send' }, { name: 'case.sla.reminder' }, { name: 'action.followup' }, { name: 'retention.purge' }, { name: 'face.match' })
         ],
-        providers: [evidence_scan_processor_1.EvidenceScanProcessor, notifications_processor_1.NotificationsProcessor, sla_reminder_processor_1.SlaReminderProcessor, action_followup_processor_1.ActionFollowupProcessor, retention_purge_processor_1.RetentionPurgeProcessor]
+        providers: [evidence_scan_processor_1.EvidenceScanProcessor, notifications_processor_1.NotificationsProcessor, sla_reminder_processor_1.SlaReminderProcessor, action_followup_processor_1.ActionFollowupProcessor, retention_purge_processor_1.RetentionPurgeProcessor, face_matching_processor_1.FaceMatchingProcessor]
     })
 ], JobsModule);
 //# sourceMappingURL=jobs.module.js.map

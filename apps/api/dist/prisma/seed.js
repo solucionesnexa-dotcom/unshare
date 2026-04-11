@@ -5,8 +5,8 @@ const crypto_1 = require("crypto");
 const uuid_1 = require("uuid");
 const prisma = new client_1.PrismaClient();
 async function main() {
-    const guardianId = (0, uuid_1.v7)();
-    const familyId = (0, uuid_1.v7)();
+    const guardianId = '00000000-0000-4000-8000-000000000100';
+    const familyId = '00000000-0000-4000-8000-000000000101';
     await prisma.user.upsert({
         where: { email: 'guardian@example.com' },
         update: {},
@@ -17,10 +17,11 @@ async function main() {
         }
     });
     await prisma.family.upsert({ where: { id: familyId }, update: {}, create: { id: familyId, createdBy: guardianId } });
+    await prisma.roleAssignment.deleteMany({
+        where: { userId: guardianId, scopeType: 'family' }
+    });
     await prisma.roleAssignment.create({
         data: { id: (0, uuid_1.v7)(), userId: guardianId, role: 'guardian', scopeType: 'family', scopeId: familyId }
-    }).catch((err) => {
-        console.warn('Seed warning: roleAssignment upsert failed', err.message);
     });
     const minorId = '00000000-0000-4000-8000-000000000004';
     await prisma.minor.upsert({
@@ -31,6 +32,30 @@ async function main() {
             familyId,
             firstNameEnc: Buffer.from('Mateo', 'utf8'),
             aliasesJson: ['Mateo'],
+            sensitivityTagsJson: ['public_post']
+        }
+    });
+    const minorValentinaId = '00000000-0000-4000-8000-000000000005';
+    await prisma.minor.upsert({
+        where: { id: minorValentinaId },
+        update: {},
+        create: {
+            id: minorValentinaId,
+            familyId,
+            firstNameEnc: Buffer.from('Valentina', 'utf8'),
+            aliasesJson: ['Valentina'],
+            sensitivityTagsJson: ['public_post']
+        }
+    });
+    const minorDiegoId = '00000000-0000-4000-8000-000000000006';
+    await prisma.minor.upsert({
+        where: { id: minorDiegoId },
+        update: {},
+        create: {
+            id: minorDiegoId,
+            familyId,
+            firstNameEnc: Buffer.from('Diego', 'utf8'),
+            aliasesJson: ['Diego'],
             sensitivityTagsJson: ['public_post']
         }
     });

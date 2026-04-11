@@ -10,8 +10,8 @@ export declare class CasesService {
     constructor(prisma: PrismaService, authz: AuthorizationService, audit: AuditService);
     create(user: RequestUser, dto: CreateCaseDto): Promise<{
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.CaseStatus;
+        createdAt: Date;
         updatedAt: Date;
         familyId: string;
         primaryGuardianId: string;
@@ -20,8 +20,8 @@ export declare class CasesService {
     }>;
     getById(user: RequestUser, caseId: string): Promise<{
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.CaseStatus;
+        createdAt: Date;
         updatedAt: Date;
         familyId: string;
         primaryGuardianId: string;

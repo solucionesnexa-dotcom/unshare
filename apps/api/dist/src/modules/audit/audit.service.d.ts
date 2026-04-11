@@ -13,14 +13,14 @@ export declare class AuditService {
     constructor(prisma: PrismaService);
     write(event: AuditEventInput): Promise<{
         id: string;
-        actorUserId: string | null;
+        createdAt: Date;
         action: string;
+        actorUserId: string | null;
         objectType: string;
         objectId: string | null;
         metadata: Prisma.JsonValue;
         prevHash: string | null;
         currHash: string;
-        createdAt: Date;
     } | null>;
 }
 export {};

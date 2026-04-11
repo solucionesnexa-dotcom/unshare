@@ -21,6 +21,7 @@ const cases_module_1 = require("./modules/cases/cases.module");
 const findings_module_1 = require("./modules/findings/findings.module");
 const actions_module_1 = require("./modules/actions/actions.module");
 const evidence_module_1 = require("./modules/evidence/evidence.module");
+const face_references_module_1 = require("./modules/face-references/face-references.module");
 const audit_module_1 = require("./modules/audit/audit.module");
 const jobs_module_1 = require("./jobs/jobs.module");
 const health_controller_1 = require("./health.controller");
@@ -50,6 +51,7 @@ exports.AppModule = AppModule = __decorate([
             findings_module_1.FindingsModule,
             actions_module_1.ActionsModule,
             evidence_module_1.EvidenceModule,
+            face_references_module_1.FaceReferencesModule,
             audit_module_1.AuditModule,
             jobs_module_1.JobsModule
         ]
