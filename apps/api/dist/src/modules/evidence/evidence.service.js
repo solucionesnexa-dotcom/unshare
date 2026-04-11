@@ -30,7 +30,7 @@ let EvidenceService = class EvidenceService {
         this.evidenceScanQueue = evidenceScanQueue;
     }
     async createUploadUrl(user, findingId) {
-        const finding = (await this.findingsService.getById(user, findingId));
+        const finding = await this.findingsService.getById(user, findingId);
         if (!finding)
             throw new common_1.BadRequestException('Finding not found');
         const evidenceId = (0, uuid_1.v7)();

@@ -12,28 +12,28 @@ export declare class FindingsService {
     constructor(prisma: PrismaService, casesService: CasesService, authz: AuthorizationService, audit: AuditService);
     create(user: RequestUser, caseId: string, dto: CreateFindingDto): Promise<{
         id: string;
-        createdAt: Date;
         caseId: string;
-        status: import(".prisma/client").$Enums.FindingStatus;
         minorId: string;
         url: string;
         urlFingerprint: string;
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     getById(user: RequestUser, findingId: string): Promise<{
         id: string;
-        createdAt: Date;
         caseId: string;
-        status: import(".prisma/client").$Enums.FindingStatus;
         minorId: string;
         url: string;
         urlFingerprint: string;
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
         updatedAt: Date;
     } | {
         id: string;

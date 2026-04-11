@@ -17,7 +17,9 @@ const common_1 = require("@nestjs/common");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const policy_guard_1 = require("../../common/guards/policy.guard");
+const policy_resource_decorator_1 = require("../../common/decorators/policy-resource.decorator");
 const evidence_service_1 = require("./evidence.service");
+const mark_uploaded_dto_1 = require("./dto/mark-uploaded.dto");
 let EvidenceController = class EvidenceController {
     constructor(evidenceService) {
         this.evidenceService = evidenceService;
@@ -25,7 +27,7 @@ let EvidenceController = class EvidenceController {
     async createUpload(user, findingId) {
         return this.evidenceService.createUploadUrl(user, findingId);
     }
-    completeUpload(_findingId, body) {
+    async completeUpload(_findingId, body) {
         return this.evidenceService.markUploaded(body.evidenceId, body.sha256, body.mimeType);
     }
     async downloadUrl(user, evidenceId) {
@@ -35,6 +37,7 @@ let EvidenceController = class EvidenceController {
 exports.EvidenceController = EvidenceController;
 __decorate([
     (0, common_1.Post)('findings/:findingId/evidence/upload-url'),
+    (0, policy_resource_decorator_1.PolicyResource)('evidence'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('findingId')),
     __metadata("design:type", Function),
@@ -43,14 +46,16 @@ __decorate([
 ], EvidenceController.prototype, "createUpload", null);
 __decorate([
     (0, common_1.Post)('findings/:findingId/evidence'),
+    (0, policy_resource_decorator_1.PolicyResource)('evidence'),
     __param(0, (0, common_1.Param)('findingId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, mark_uploaded_dto_1.MarkUploadedDto]),
+    __metadata("design:returntype", Promise)
 ], EvidenceController.prototype, "completeUpload", null);
 __decorate([
     (0, common_1.Get)('evidence/:evidenceId/download-url'),
+    (0, policy_resource_decorator_1.PolicyResource)('evidence'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('evidenceId')),
     __metadata("design:type", Function),

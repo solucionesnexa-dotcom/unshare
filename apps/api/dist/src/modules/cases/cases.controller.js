@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const policy_guard_1 = require("../../common/guards/policy.guard");
+const policy_resource_decorator_1 = require("../../common/decorators/policy-resource.decorator");
 const create_case_dto_1 = require("./dto/create-case.dto");
 const cases_service_1 = require("./cases.service");
 let CasesController = class CasesController {
@@ -36,6 +37,7 @@ let CasesController = class CasesController {
 exports.CasesController = CasesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, policy_resource_decorator_1.PolicyResource)('case'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -44,6 +46,7 @@ __decorate([
 ], CasesController.prototype, "createCase", null);
 __decorate([
     (0, common_1.Get)(':caseId'),
+    (0, policy_resource_decorator_1.PolicyResource)('case'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('caseId')),
     __metadata("design:type", Function),

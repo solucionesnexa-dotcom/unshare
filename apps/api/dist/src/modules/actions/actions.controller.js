@@ -20,6 +20,7 @@ const policy_guard_1 = require("../../common/guards/policy.guard");
 const actions_service_1 = require("./actions.service");
 const approve_action_dto_1 = require("./dto/approve-action.dto");
 const create_action_dto_1 = require("./dto/create-action.dto");
+const policy_resource_decorator_1 = require("../../common/decorators/policy-resource.decorator");
 let ActionsController = class ActionsController {
     constructor(actionsService) {
         this.actionsService = actionsService;
@@ -40,6 +41,7 @@ let ActionsController = class ActionsController {
 exports.ActionsController = ActionsController;
 __decorate([
     (0, common_1.Post)('findings/:findingId/actions/delete-own'),
+    (0, policy_resource_decorator_1.PolicyResource)('action'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('findingId')),
     __param(2, (0, common_1.Headers)('idempotency-key')),
@@ -49,6 +51,7 @@ __decorate([
 ], ActionsController.prototype, "deleteOwn", null);
 __decorate([
     (0, common_1.Post)('findings/:findingId/actions/friendly-request'),
+    (0, policy_resource_decorator_1.PolicyResource)('action'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('findingId')),
     __param(2, (0, common_1.Body)()),
@@ -59,6 +62,7 @@ __decorate([
 ], ActionsController.prototype, "friendly", null);
 __decorate([
     (0, common_1.Post)('findings/:findingId/actions/escalate-platform'),
+    (0, policy_resource_decorator_1.PolicyResource)('action'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('findingId')),
     __param(2, (0, common_1.Headers)('idempotency-key')),
@@ -68,6 +72,7 @@ __decorate([
 ], ActionsController.prototype, "escalate", null);
 __decorate([
     (0, common_1.Post)('actions/:actionId/approve'),
+    (0, policy_resource_decorator_1.PolicyResource)('action'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('actionId')),
     __param(2, (0, common_1.Body)()),

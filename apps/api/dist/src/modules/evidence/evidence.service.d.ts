@@ -18,9 +18,9 @@ export declare class EvidenceService {
     }>;
     markUploaded(evidenceId: string, sha256: string, mimeType?: string): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.EvidenceStatus;
         sha256: string;
         findingId: string;
-        status: import(".prisma/client").$Enums.EvidenceStatus;
         objectKey: string;
         mimeType: string;
         capturedBy: string;

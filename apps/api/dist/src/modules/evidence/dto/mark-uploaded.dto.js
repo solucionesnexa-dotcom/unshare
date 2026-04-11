@@ -9,23 +9,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateActionDto = void 0;
+exports.MarkUploadedDto = void 0;
 const class_validator_1 = require("class-validator");
-class CreateActionDto {
+class MarkUploadedDto {
 }
-exports.CreateActionDto = CreateActionDto;
+exports.MarkUploadedDto = MarkUploadedDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(['delete_own', 'archive_own', 'privatize_own', 'friendly_request', 'escalate_platform', 'escalate_search', 'escalate_urgent']),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateActionDto.prototype, "actionType", void 0);
+], MarkUploadedDto.prototype, "evidenceId", void 0);
 __decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateActionDto.prototype, "bulk", void 0);
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], MarkUploadedDto.prototype, "sha256", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateActionDto.prototype, "customMessage", void 0);
-//# sourceMappingURL=create-action.dto.js.map
+], MarkUploadedDto.prototype, "mimeType", void 0);
+//# sourceMappingURL=mark-uploaded.dto.js.map

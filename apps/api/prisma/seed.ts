@@ -22,7 +22,9 @@ async function main() {
 
   await prisma.roleAssignment.create({
     data: { id: uuidv7(), userId: guardianId, role: 'guardian', scopeType: 'family', scopeId: familyId }
-  }).catch(() => undefined);
+  }).catch((err) => {
+    console.warn('Seed warning: roleAssignment upsert failed', err.message);
+  });
 }
 
 main().finally(() => prisma.$disconnect());

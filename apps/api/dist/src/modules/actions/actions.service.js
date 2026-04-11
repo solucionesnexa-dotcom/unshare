@@ -26,9 +26,11 @@ let ActionsService = class ActionsService {
     async create(user, findingId, dto, idempotencyKey) {
         if (!idempotencyKey)
             throw new common_1.BadRequestException('Idempotency key required');
-        const finding = (await this.findingsService.getById(user, findingId));
+        const finding = await this.findingsService.getById(user, findingId);
         if (!finding)
             throw new common_1.BadRequestException('Finding not found');
+        if (!('caseId' in finding) || !('ownershipType' in finding))
+            throw new common_1.BadRequestException('Finding missing required fields');
         this.authz.assert(user, 'action:create', { caseId: finding.caseId, ownershipType: finding.ownershipType });
         if (dto.actionType === 'escalate_platform') {
             const availableEvidence = await this.prisma.findingEvidence.count({ where: { findingId, status: 'available' } });

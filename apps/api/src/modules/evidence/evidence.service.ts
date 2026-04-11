@@ -19,7 +19,7 @@ export class EvidenceService {
   ) {}
 
   async createUploadUrl(user: RequestUser, findingId: string) {
-    const finding = (await this.findingsService.getById(user, findingId)) as any;
+    const finding = await this.findingsService.getById(user, findingId);
     if (!finding) throw new BadRequestException('Finding not found');
 
     const evidenceId = uuidv7();

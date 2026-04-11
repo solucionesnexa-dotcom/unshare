@@ -23,9 +23,9 @@ let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    login(dto) { return this.authService.login(dto); }
-    refresh(dto) { return this.authService.refresh(dto); }
-    logout(refreshToken) { return this.authService.logout(refreshToken); }
+    async login(dto) { return this.authService.login(dto); }
+    async refresh(dto) { return this.authService.refresh(dto); }
+    async logout(refreshToken) { return this.authService.logout(refreshToken); }
     me(user) { return { id: user.id, role: user.role, familyId: user.familyId }; }
 };
 exports.AuthController = AuthController;
@@ -34,21 +34,21 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Post)('refresh'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [refresh_dto_1.RefreshDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refresh", null);
 __decorate([
     (0, common_1.Post)('logout'),
     __param(0, (0, common_1.Headers)('x-refresh-token')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

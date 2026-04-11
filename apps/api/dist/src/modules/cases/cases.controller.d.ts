@@ -6,8 +6,8 @@ export declare class CasesController {
     constructor(casesService: CasesService);
     createCase(user: RequestUser, dto: CreateCaseDto): Promise<{
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.CaseStatus;
+        createdAt: Date;
         updatedAt: Date;
         familyId: string;
         primaryGuardianId: string;
@@ -16,8 +16,8 @@ export declare class CasesController {
     }>;
     getCase(user: RequestUser, caseId: string): Promise<{
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.CaseStatus;
+        createdAt: Date;
         updatedAt: Date;
         familyId: string;
         primaryGuardianId: string;

@@ -19,7 +19,9 @@ async function main() {
     await prisma.family.upsert({ where: { id: familyId }, update: {}, create: { id: familyId, createdBy: guardianId } });
     await prisma.roleAssignment.create({
         data: { id: (0, uuid_1.v7)(), userId: guardianId, role: 'guardian', scopeType: 'family', scopeId: familyId }
-    }).catch(() => undefined);
+    }).catch((err) => {
+        console.warn('Seed warning: roleAssignment upsert failed', err.message);
+    });
 }
 main().finally(() => prisma.$disconnect());
 //# sourceMappingURL=seed.js.map

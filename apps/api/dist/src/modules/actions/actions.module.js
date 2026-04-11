@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const iam_module_1 = require("../iam/iam.module");
 const findings_module_1 = require("../findings/findings.module");
 const audit_module_1 = require("../audit/audit.module");
+const auth_module_1 = require("../auth/auth.module");
 const actions_controller_1 = require("./actions.controller");
 const actions_service_1 = require("./actions.service");
 let ActionsModule = class ActionsModule {
 };
 exports.ActionsModule = ActionsModule;
 exports.ActionsModule = ActionsModule = __decorate([
-    (0, common_1.Module)({ imports: [iam_module_1.IamModule, findings_module_1.FindingsModule, audit_module_1.AuditModule], controllers: [actions_controller_1.ActionsController], providers: [actions_service_1.ActionsService] })
+    (0, common_1.Module)({ imports: [iam_module_1.IamModule, findings_module_1.FindingsModule, audit_module_1.AuditModule, auth_module_1.AuthModule], controllers: [actions_controller_1.ActionsController], providers: [actions_service_1.ActionsService] })
 ], ActionsModule);
 //# sourceMappingURL=actions.module.js.map

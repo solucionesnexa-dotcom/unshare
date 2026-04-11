@@ -13,24 +13,24 @@ export declare class ActionsService {
     constructor(prisma: PrismaService, findingsService: FindingsService, authz: AuthorizationService, audit: AuditService);
     create(user: RequestUser, findingId: string, dto: CreateActionDto, idempotencyKey: string): Promise<{
         id: string;
-        createdAt: Date;
-        idempotencyKey: string;
         caseId: string;
-        findingId: string;
-        actionType: import(".prisma/client").$Enums.ActionType;
         status: import(".prisma/client").$Enums.ActionStatus;
+        createdAt: Date;
+        findingId: string;
+        idempotencyKey: string;
+        actionType: import(".prisma/client").$Enums.ActionType;
         requiresApproval: boolean;
         payload: import("@prisma/client/runtime/library").JsonValue;
         preparedBy: string;
     }>;
     approve(user: RequestUser, actionId: string, dto: ApproveActionDto): Promise<{
         id: string;
-        createdAt: Date;
-        idempotencyKey: string;
         caseId: string;
-        findingId: string;
-        actionType: import(".prisma/client").$Enums.ActionType;
         status: import(".prisma/client").$Enums.ActionStatus;
+        createdAt: Date;
+        findingId: string;
+        idempotencyKey: string;
+        actionType: import(".prisma/client").$Enums.ActionType;
         requiresApproval: boolean;
         payload: import("@prisma/client/runtime/library").JsonValue;
         preparedBy: string;

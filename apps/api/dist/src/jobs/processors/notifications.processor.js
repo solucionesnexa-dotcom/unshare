@@ -5,14 +5,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var NotificationsProcessor_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsProcessor = void 0;
 const bullmq_1 = require("@nestjs/bullmq");
-let NotificationsProcessor = class NotificationsProcessor extends bullmq_1.WorkerHost {
-    async process(job) { return { ok: true, id: job.id }; }
+const common_1 = require("@nestjs/common");
+let NotificationsProcessor = NotificationsProcessor_1 = class NotificationsProcessor extends bullmq_1.WorkerHost {
+    constructor() {
+        super(...arguments);
+        this.logger = new common_1.Logger(NotificationsProcessor_1.name);
+    }
+    async process(job) {
+        this.logger.warn(`[TODO] Notifications processor stub: job ${job.id}`);
+        return { ok: true, id: job.id, status: 'pending_implementation' };
+    }
 };
 exports.NotificationsProcessor = NotificationsProcessor;
-exports.NotificationsProcessor = NotificationsProcessor = __decorate([
+exports.NotificationsProcessor = NotificationsProcessor = NotificationsProcessor_1 = __decorate([
     (0, bullmq_1.Processor)('notifications.send')
 ], NotificationsProcessor);
 //# sourceMappingURL=notifications.processor.js.map

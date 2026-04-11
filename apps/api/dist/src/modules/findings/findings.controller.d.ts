@@ -6,28 +6,28 @@ export declare class FindingsController {
     constructor(findingsService: FindingsService);
     createFinding(user: RequestUser, caseId: string, dto: CreateFindingDto): Promise<{
         id: string;
-        createdAt: Date;
         caseId: string;
-        status: import(".prisma/client").$Enums.FindingStatus;
         minorId: string;
         url: string;
         urlFingerprint: string;
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     getFinding(user: RequestUser, findingId: string): Promise<{
         id: string;
-        createdAt: Date;
         caseId: string;
-        status: import(".prisma/client").$Enums.FindingStatus;
         minorId: string;
         url: string;
         urlFingerprint: string;
         platform: string;
         ownershipType: import(".prisma/client").$Enums.OwnershipType;
         riskScore: number;
+        status: import(".prisma/client").$Enums.FindingStatus;
+        createdAt: Date;
         updatedAt: Date;
     } | {
         id: string;

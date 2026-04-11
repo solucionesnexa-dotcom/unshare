@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const policy_guard_1 = require("../../common/guards/policy.guard");
+const policy_resource_decorator_1 = require("../../common/decorators/policy-resource.decorator");
 const create_finding_dto_1 = require("./dto/create-finding.dto");
 const findings_service_1 = require("./findings.service");
 let FindingsController = class FindingsController {
@@ -36,6 +37,7 @@ let FindingsController = class FindingsController {
 exports.FindingsController = FindingsController;
 __decorate([
     (0, common_1.Post)('cases/:caseId/findings'),
+    (0, policy_resource_decorator_1.PolicyResource)('finding'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('caseId')),
     __param(2, (0, common_1.Body)()),
@@ -45,6 +47,7 @@ __decorate([
 ], FindingsController.prototype, "createFinding", null);
 __decorate([
     (0, common_1.Get)('findings/:findingId'),
+    (0, policy_resource_decorator_1.PolicyResource)('finding'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('findingId')),
     __metadata("design:type", Function),

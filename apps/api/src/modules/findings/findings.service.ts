@@ -21,6 +21,12 @@ export class FindingsService {
     const caseRecord = await this.casesService.getById(user, caseId);
     if (!caseRecord) throw new Error('Case not found or not authorized');
 
+    // Validar que el minorId pertenece a la familia del usuario
+    const minor = await this.prisma.minor.findFirst({
+      where: { id: dto.minorId, familyId: user.familyId }
+    });
+    if (!minor) throw new Error('Minor not in user family or not found');
+
     this.authz.assert(user, 'finding:create', { caseId, familyId: caseRecord.familyId, ownershipType: dto.ownershipType });
     const fingerprint = createHash('sha256').update(dto.url).digest('hex');
 

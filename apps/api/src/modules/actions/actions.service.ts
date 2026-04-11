@@ -20,8 +20,10 @@ export class ActionsService {
   async create(user: RequestUser, findingId: string, dto: CreateActionDto, idempotencyKey: string) {
     if (!idempotencyKey) throw new BadRequestException('Idempotency key required');
 
-    const finding = (await this.findingsService.getById(user, findingId)) as any;
+    const finding = await this.findingsService.getById(user, findingId);
     if (!finding) throw new BadRequestException('Finding not found');
+    // Type guard: ensure finding has required properties for authz check
+    if (!('caseId' in finding) || !('ownershipType' in finding)) throw new BadRequestException('Finding missing required fields');
 
     this.authz.assert(user, 'action:create', { caseId: finding.caseId, ownershipType: finding.ownershipType });
 

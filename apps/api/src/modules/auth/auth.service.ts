@@ -69,7 +69,9 @@ export class AuthService {
 
     const primaryRole = roles[0]?.role || 'guardian';
     const familyRole = roles.find((r) => r.scopeType === 'family');
-    const caseRoles = roles.filter((r) => r.scopeType === 'case').map((r) => r.scopeId!).filter(Boolean);
+    const caseRoles = roles
+      .filter((r) => r.scopeType === 'case' && r.scopeId !== null)
+      .map((r) => r.scopeId as string);
 
     return {
       id: user.id,
