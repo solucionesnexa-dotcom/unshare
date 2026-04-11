@@ -1,0 +1,139 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  line-height: 1.45;
+}
+
+header,
+footer {
+  background: linear-gradient(135deg, #0f172a, #1d4ed8);
+  color: #fff;
+  padding: 1.25rem 2rem;
+}
+
+main {
+  max-width: 1180px;
+  margin: 1.25rem auto;
+  padding: 0 1rem 2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1rem;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 3px 16px rgba(15, 23, 42, 0.06);
+}
+
+h1, h2, h3 { margin-top: 0; }
+
+form,
+.inline-fields {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+input[type="text"] {
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid #94a3b8;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #2563eb;
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.hint {
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+#face-gallery {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  margin: 0.75rem 0;
+}
+
+.face-card {
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.5rem;
+  background: #f8fafc;
+}
+
+.face-card.active {
+  border-color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.face-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.result-item {
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.platform {
+  font-weight: 700;
+}
+
+.badge {
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.8rem;
+}
+
+#map {
+  width: 100%;
+  height: 360px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+ul { padding-left: 1rem; }
+
+a.delete-link {
+  color: #1d4ed8;
+  font-weight: 700;
+}

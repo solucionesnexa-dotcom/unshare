@@ -1,0 +1,280 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [citext]
+}
+
+enum RoleCode {
+  guardian
+  operator
+  admin
+  collaborator_limited
+
+  @@map("role_code")
+}
+
+enum CaseStatus {
+  open
+  in_review
+  action_in_progress
+  waiting_response
+  partially_resolved
+  resolved
+  closed
+
+  @@map("case_status")
+}
+
+enum FindingStatus {
+  detected
+  validated
+  pending_approval
+  action_prepared
+  sent
+  resolved_removed
+  resolved_archived
+  rejected
+  closed
+
+  @@map("finding_status")
+}
+
+enum ActionType {
+  delete_own
+  archive_own
+  privatize_own
+  friendly_request
+  escalate_platform
+  escalate_search
+  escalate_urgent
+
+  @@map("action_type")
+}
+
+enum ActionStatus {
+  draft
+  pending_approval
+  approved
+  sent
+  completed
+  failed
+  cancelled
+
+  @@map("action_status")
+}
+
+enum OwnershipType {
+  own_content
+  family_third_party
+  external_third_party
+  platform_copy
+  search_result
+
+  @@map("ownership_type")
+}
+
+enum EvidenceStatus {
+  uploaded_pending_scan
+  available
+  quarantined
+  rejected
+
+  @@map("evidence_status")
+}
+
+model User {
+  id           String   @id @db.Uuid
+  email        String   @unique @db.Citext
+  passwordHash String   @map("password_hash")
+  mfaEnabled   Boolean  @default(false) @map("mfa_enabled")
+  status       String   @default("active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @map("updated_at")
+
+  @@map("users")
+}
+
+model Session {
+  id               String   @id @db.Uuid
+  userId           String   @db.Uuid @map("user_id")
+  refreshTokenHash String   @map("refresh_token_hash")
+  revokedAt        DateTime? @map("revoked_at")
+  expiresAt        DateTime @map("expires_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model RoleAssignment {
+  id        String   @id @db.Uuid
+  userId    String   @db.Uuid @map("user_id")
+  role      RoleCode
+  scopeType String   @map("scope_type")
+  scopeId   String?  @db.Uuid @map("scope_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, role])
+  @@map("role_assignments")
+}
+
+model Family {
+  id        String   @id @db.Uuid
+  createdBy String   @db.Uuid @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("families")
+}
+
+model Guardian {
+  id                String   @id @db.Uuid
+  familyId          String   @db.Uuid @map("family_id")
+  userId            String   @db.Uuid @map("user_id")
+  legalRelationship String   @map("legal_relationship")
+  phoneEnc          Bytes?   @map("phone_enc")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([familyId])
+  @@map("guardians")
+}
+
+model Minor {
+  id                  String   @id @db.Uuid
+  familyId            String   @db.Uuid @map("family_id")
+  firstNameEnc        Bytes    @map("first_name_enc")
+  aliasesJson         Json     @default("[]") @map("aliases_json")
+  sensitivityTagsJson Json     @default("[]") @map("sensitivity_tags_json")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([familyId])
+  @@map("minors")
+}
+
+model LegalMandate {
+  id         String   @id @db.Uuid
+  familyId   String   @db.Uuid @map("family_id")
+  minorId    String   @db.Uuid @map("minor_id")
+  guardianId String   @db.Uuid @map("guardian_id")
+  status     String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([minorId, status])
+  @@map("legal_mandates")
+}
+
+model Case {
+  id                String     @id @db.Uuid
+  familyId          String     @db.Uuid @map("family_id")
+  primaryGuardianId String     @db.Uuid @map("primary_guardian_id")
+  status            CaseStatus @default(open)
+  priority          Int
+  summary           String?
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @default(now()) @map("updated_at")
+
+  @@index([familyId, status])
+  @@map("cases")
+}
+
+model CaseAssignment {
+  id         String   @id @db.Uuid
+  caseId     String   @db.Uuid @map("case_id")
+  userId     String   @db.Uuid @map("user_id")
+  roleInCase String   @map("role_in_case")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([caseId, userId])
+  @@map("case_assignments")
+}
+
+model Finding {
+  id             String        @id @db.Uuid
+  caseId         String        @db.Uuid @map("case_id")
+  minorId        String        @db.Uuid @map("minor_id")
+  url            String
+  urlFingerprint String        @map("url_fingerprint")
+  platform       String
+  ownershipType  OwnershipType @map("ownership_type")
+  riskScore      Int           @map("risk_score")
+  status         FindingStatus @default(detected)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @default(now()) @map("updated_at")
+
+  @@unique([caseId, urlFingerprint])
+  @@index([caseId, status])
+  @@map("findings")
+}
+
+model FindingEvidence {
+  id         String         @id @db.Uuid
+  findingId  String         @db.Uuid @map("finding_id")
+  objectKey  String         @map("object_key")
+  sha256     String
+  mimeType   String         @map("mime_type")
+  status     EvidenceStatus @default(uploaded_pending_scan)
+  capturedBy String         @db.Uuid @map("captured_by")
+  capturedAt DateTime       @default(now()) @map("captured_at")
+
+  @@index([findingId, status])
+  @@map("finding_evidence")
+}
+
+model Action {
+  id               String       @id @db.Uuid
+  caseId           String       @db.Uuid @map("case_id")
+  findingId        String       @db.Uuid @map("finding_id")
+  actionType       ActionType   @map("action_type")
+  status           ActionStatus @default(draft)
+  requiresApproval Boolean      @map("requires_approval")
+  idempotencyKey   String       @unique @map("idempotency_key")
+  payload          Json         @default("{}")
+  preparedBy       String       @db.Uuid @map("prepared_by")
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  @@index([findingId, status])
+  @@map("actions")
+}
+
+model ActionApproval {
+  id         String   @id @db.Uuid
+  actionId   String   @db.Uuid @map("action_id")
+  approverId String   @db.Uuid @map("approver_id")
+  decision   String
+  reason     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([actionId])
+  @@map("action_approvals")
+}
+
+model Notification {
+  id        String   @id @db.Uuid
+  userId    String   @db.Uuid @map("user_id")
+  type      String
+  payload   Json     @default("{}")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id          String   @id @db.Uuid
+  actorUserId String?  @db.Uuid @map("actor_user_id")
+  action      String
+  objectType  String   @map("object_type")
+  objectId    String?  @db.Uuid @map("object_id")
+  metadata    Json     @default("{}")
+  prevHash    String?  @map("prev_hash")
+  currHash    String   @map("curr_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([objectType, objectId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
