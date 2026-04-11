@@ -41,3 +41,8 @@ Este repo está preparado para desplegarse como demo pública en hosting estáti
 ## Aviso
 
 ⚠️ Esta demo no consume APIs reales ni procesa biometría real. Todos los perfiles y publicaciones son datos sintéticos de prueba.
+
+
+## Roadmap MVP real
+
+- Ver diseño funcional/técnico en `docs/MVP_ARCHITECTURE.md`.
