@@ -30,7 +30,16 @@
     .btn-ghost:hover { background: #f9f9f9; color: #111; }
     
     .trust-note { font-size: 13px; color: #888; margin-top: 1rem; font-weight: 500;}
-    
+
+    .form-section { background: #f4f5ff; border: 1px solid #e5e7ff; border-radius: 16px; padding: 1.75rem; margin-top: 2rem; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .form-field { width: 100%; padding: 0.95rem 1rem; border: 1px solid #d1d5db; border-radius: 12px; font-size: 15px; }
+    .consent-row { display: flex; align-items: flex-start; gap: 0.85rem; margin-bottom: 1rem; }
+    .consent-checkbox { width: 18px; height: 18px; margin-top: 4px; }
+    .consent-label { font-size: 15px; color: #334155; line-height: 1.5; }
+    .form-note { font-size: 14px; color: #475569; margin-top: 0.5rem; }
+    .success-message { background: #ecfdf5; color: #14532d; border: 1px solid #d1fae5; border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem; }
+
     .h2 { font-size: clamp(24px, 3.5vw, 32px); font-weight: 700; color: #111; line-height: 1.25; margin-bottom: 1rem; letter-spacing: -0.02em; }
     .h2 em { font-style: normal; color: #534AB7; }
     .body { font-size: 17px; color: #555; line-height: 1.7; max-width: 620px; }
@@ -81,13 +90,36 @@
     
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
       <!-- CTA ACTUALIZADA PARA FOTO -->
-      <button class="btn-primary">
+      <button id="start-upload-button" class="btn-primary" type="button">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
         Subir foto de mi hijo
       </button>
-      <button class="btn-ghost">Ver cómo funciona</button>
+      <button class="btn-ghost" type="button">Ver cómo funciona</button>
     </div>
     <p class="trust-note">Búsqueda gratuita · 100% Privado · Tú decides qué se elimina</p>
+
+    <div class="form-section" id="registration-section">
+      <h2 class="h2">Crea tu cuenta y autoriza el uso de la foto</h2>
+      <p class="body">Regístrate para recibir los resultados y dar tu consentimiento explícito para el uso de la imagen solo durante la búsqueda de coincidencias.</p>
+      <form id="registration-form">
+        <div class="form-row">
+          <input id="guardian-name" class="form-field" type="text" placeholder="Tu nombre completo" required />
+          <input id="guardian-email" class="form-field" type="email" placeholder="Tu correo electrónico" required />
+        </div>
+        <div class="form-row">
+          <input id="guardian-password" class="form-field" type="password" placeholder="Crea una contraseña" required minlength="8" />
+          <input id="child-name" class="form-field" type="text" placeholder="Nombre de tu hijo" required />
+        </div>
+        <div class="consent-row">
+          <input id="photo-consent" class="consent-checkbox" type="checkbox" />
+          <label for="photo-consent" class="consent-label">Autorizo el uso de la foto de mi hijo para su búsqueda segura en internet y acepto la política de privacidad.</label>
+        </div>
+        <button id="register-button" class="btn-primary" type="submit" disabled>Crear cuenta y aceptar política</button>
+        <p id="register-error" class="form-note" style="color:#b91c1c;display:none;"></p>
+        <p class="form-note">Tu imagen se usará únicamente para localizar coincidencias en la red abierta y no se compartirá con terceros sin tu consentimiento.</p>
+      </form>
+      <div id="register-success" class="success-message" hidden>Gracias. Tu registro se ha completado y tu consentimiento para usar la foto de tu hijo ha sido registrado.</div>
+    </div>
   </div>
 
   <div class="section">
@@ -175,5 +207,70 @@
   </div>
 
 </div>
+<script>
+  const startUploadButton = document.getElementById('start-upload-button');
+  const registrationSection = document.getElementById('registration-section');
+  const registrationForm = document.getElementById('registration-form');
+  const registerButton = document.getElementById('register-button');
+  const photoConsent = document.getElementById('photo-consent');
+  const registerError = document.getElementById('register-error');
+  const registerSuccess = document.getElementById('register-success');
+
+  if (startUploadButton) {
+    startUploadButton.addEventListener('click', () => {
+      registrationSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      photoConsent.focus();
+    });
+  }
+
+  if (photoConsent) {
+    photoConsent.addEventListener('change', () => {
+      registerButton.disabled = !photoConsent.checked;
+      registerError.style.display = 'none';
+    });
+  }
+
+  if (registrationForm) {
+    registrationForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      registerError.style.display = 'none';
+
+      const guardianName = document.getElementById('guardian-name').value.trim();
+      const guardianEmail = document.getElementById('guardian-email').value.trim();
+      const guardianPassword = document.getElementById('guardian-password').value.trim();
+      const childName = document.getElementById('child-name').value.trim();
+      const consentGiven = photoConsent.checked;
+
+      if (!guardianName || !guardianEmail || !guardianPassword || !childName) {
+        registerError.textContent = 'Por favor completa todos los campos antes de continuar.';
+        registerError.style.display = 'block';
+        return;
+      }
+
+      if (!consentGiven) {
+        registerError.textContent = 'Debes aceptar el uso de la foto y la política de privacidad para continuar.';
+        registerError.style.display = 'block';
+        return;
+      }
+
+      const registrationData = {
+        guardianName,
+        guardianEmail,
+        childName,
+        consentGiven,
+        registeredAt: new Date().toISOString()
+      };
+      window.localStorage.setItem('unshareRegistration', JSON.stringify(registrationData));
+
+      registrationForm.querySelectorAll('input, button').forEach((element) => element.disabled = true);
+      registerSuccess.hidden = false;
+      registerSuccess.textContent = 'Cuenta creada. Te llevamos a tu perfil para subir la foto de tu hijo.';
+
+      setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 1200);
+    });
+  }
+</script>
 </body>
 </html>

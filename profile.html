@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - Unshare</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f8fafc; color: #111; min-height: 100vh; display: flex; justify-content: center; padding: 24px; }
+    .container { width: 100%; max-width: 900px; background: #fff; border-radius: 18px; box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12); padding: 32px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    header h1 { font-size: 28px; line-height: 1.1; }
+    a { color: #2563eb; text-decoration: none; font-weight: 700; }
+    a:hover { text-decoration: underline; }
+    .profile-card, .upload-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 24px; margin-bottom: 1.5rem; }
+    .profile-card h2, .upload-card h2 { font-size: 22px; margin-bottom: 1rem; }
+    .field-row { display: grid; gap: 0.85rem; margin-bottom: 1rem; }
+    .field-label { color: #475569; font-size: 0.95rem; margin-bottom: 0.35rem; display: block; }
+    .field-value { background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.95rem 1rem; color: #111; }
+    .upload-field { display: flex; flex-direction: column; gap: 0.75rem; }
+    input[type="file"] { padding: 0.8rem 0.75rem; border-radius: 12px; border: 1px solid #cbd5e1; background: #fff; }
+    button { border: none; border-radius: 12px; padding: 0.95rem 1.2rem; font-weight: 700; cursor: pointer; background: #2563eb; color: #fff; transition: background 0.2s; }
+    button:hover { background: #1d4ed8; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .hint { color: #475569; font-size: 0.95rem; }
+    .message { margin-top: 1rem; padding: 1rem 1.1rem; border-radius: 14px; background: #ecfdf5; color: #14532d; border: 1px solid #d1fae5; }
+    .preview { margin-top: 1rem; border-radius: 16px; overflow: hidden; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .preview img { width: 100%; display: block; }
+    .alert { color: #b91c1c; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Mi perfil</h1>
+        <p class="hint">Carga la foto de tu hijo para iniciar la búsqueda segura.</p>
+      </div>
+      <a href="index.html">← Volver a inicio</a>
+    </header>
+
+    <section class="profile-card">
+      <h2>Datos del perfil</h2>
+      <div class="field-row">
+        <div>
+          <span class="field-label">Nombre del tutor</span>
+          <div id="profile-guardian" class="field-value">—</div>
+        </div>
+        <div>
+          <span class="field-label">Correo electrónico</span>
+          <div id="profile-email" class="field-value">—</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <span class="field-label">Nombre del hijo</span>
+          <div id="profile-child" class="field-value">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="upload-card">
+      <h2>Sube la foto de tu hijo</h2>
+      <p class="hint">Selecciona una imagen para que podamos usarla solo en la búsqueda de coincidencias en la web abierta.</p>
+      <form id="upload-form">
+        <div class="upload-field">
+          <label for="photo-upload" class="field-label">Selecciona la foto</label>
+          <input id="photo-upload" type="file" accept="image/*" required />
+        </div>
+        <button id="upload-button" type="submit" disabled>Subir fotografía</button>
+      </form>
+      <p id="upload-error" class="alert" hidden></p>
+      <div id="preview-container" class="preview" hidden>
+        <img id="photo-preview" alt="Vista previa de la foto" />
+      </div>
+      <div id="upload-success" class="message" hidden>
+        Foto preparada correctamente. Ahora enviamos la imagen a la búsqueda segura.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const registrationKey = 'unshareRegistration';
+    const uploadInput = document.getElementById('photo-upload');
+    const uploadButton = document.getElementById('upload-button');
+    const uploadForm = document.getElementById('upload-form');
+    const uploadError = document.getElementById('upload-error');
+    const uploadSuccess = document.getElementById('upload-success');
+    const previewContainer = document.getElementById('preview-container');
+    const photoPreview = document.getElementById('photo-preview');
+
+    const registrationData = JSON.parse(window.localStorage.getItem(registrationKey) || 'null');
+    if (!registrationData) {
+      document.body.innerHTML = '<div style="max-width:600px;margin:60px auto;font-family:system-ui, sans-serif;"><h1>Perfil no disponible</h1><p>Debes registrarte primero para acceder al perfil y subir la foto.</p><a href="index.html">Volver a inicio</a></div>';
+    } else {
+      document.getElementById('profile-guardian').textContent = registrationData.guardianName;
+      document.getElementById('profile-email').textContent = registrationData.guardianEmail;
+      document.getElementById('profile-child').textContent = registrationData.childName;
+    }
+
+    uploadInput.addEventListener('change', () => {
+      uploadError.hidden = true;
+      const file = uploadInput.files[0];
+      uploadButton.disabled = !file;
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          photoPreview.src = event.target.result;
+          previewContainer.hidden = false;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewContainer.hidden = true;
+      }
+    });
+
+    uploadForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      uploadError.hidden = true;
+      uploadSuccess.hidden = true;
+
+      const file = uploadInput.files[0];
+      if (!file) {
+        uploadError.textContent = 'Selecciona una imagen antes de subirla.';
+        uploadError.hidden = false;
+        return;
+      }
+
+      uploadButton.disabled = true;
+      uploadButton.textContent = 'Subiendo...';
+
+      setTimeout(() => {
+        uploadSuccess.hidden = false;
+        uploadButton.textContent = 'Subir fotografía';
+        uploadButton.disabled = false;
+      }, 1200);
+    });
+  </script>
+</body>
+</html>
